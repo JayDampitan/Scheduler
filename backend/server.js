@@ -4,6 +4,7 @@ const { errorHandler } = require("./middleware/errorMiddleware")
 const dotenv = require("dotenv").config()
 const port = process.env.PORT || 5000
 const scheduleRoute = require("./routes/scheduleRoutes")
+const userRoute = require("./routes/userRoute")
 
 const connectDB = require("./config/db")
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use("/api/schedule", scheduleRoute)
+app.use("/api/users", userRoute)
 
 app.use(errorHandler)
 

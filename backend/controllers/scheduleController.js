@@ -1,9 +1,10 @@
 const asyncHandler = require("express-async-handler");
 const Schedule = require("../models/scheduleModel");
+const User = require("../models/UserModel");
 
 // Get all schedule controller
 const getSchedule = asyncHandler(async (req, res) => {
-  const schedules = await Schedule.find();
+  const schedules = await Schedule.find({ user: req.user.id });
 
   res.json(schedules);
 });
@@ -17,6 +18,7 @@ const setSchedule = asyncHandler(async (req, res) => {
 
   const schedule = await Schedule.create({
     text: req.body.text,
+    user: req.user.id,
   });
 
   res.status(200).json(schedule);
@@ -30,6 +32,20 @@ const updateSchedule = asyncHandler(async (req, res) => {
   if (!schedule) {
     res.status(400);
     throw new Error("Schedule not found");
+  }
+
+  const user = await User.findById(req.user.id);
+
+  // Check for user
+  if (!user) {
+    res.status(401);
+    throw new Error("User not found");
+  }
+
+  // Make sure the logged in user matches the goal user
+  if (schedule.user.toString() !== user.id) {
+    res.status(401);
+    throw new Error("User not authorized");
   }
 
   const updatedSchedule = await Schedule.findByIdAndUpdate(id, req.body, {
@@ -47,6 +63,20 @@ const deleteSchedule = asyncHandler(async (req, res) => {
   if (!schedule) {
     res.status(400);
     throw new Error("Schedule not found");
+  }
+
+  const user = await User.findById(req.user.id);
+
+  // Check for user
+  if (!user) {
+    res.status(401);
+    throw new Error("User not found");
+  }
+
+  // Make sure the logged in user matches the goal user
+  if (schedule.user.toString() !== user.id) {
+    res.status(401);
+    throw new Error("User not authorized");
   }
 
   res.status(200).json({ id: id });

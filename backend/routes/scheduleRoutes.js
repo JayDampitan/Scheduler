@@ -6,9 +6,13 @@ const {
   updateSchedule,
   deleteSchedule,
 } = require("../controllers/scheduleController");
+const { protect } = require("../middleware/authMiddleware");
 
-router.route("/").get(getSchedule).post(setSchedule);
+router.route("/").get(protect, getSchedule).post(protect, setSchedule);
 
-router.route("/:id").put(updateSchedule).delete(deleteSchedule);
+router
+  .route("/:id")
+  .put(protect, updateSchedule)
+  .delete(protect, deleteSchedule);
 
 module.exports = router;
